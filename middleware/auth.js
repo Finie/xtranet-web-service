@@ -5,7 +5,7 @@ module.exports = function (req, res, next) {
   if (!token)
     return res.status(401).send({
       status: "request failed",
-      description: "Access Denied No Auth Token",
+      description: "Access Denied No Auth Token so you are not authorised to perorm that operation",
     });
 
   try {
