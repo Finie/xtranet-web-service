@@ -21,14 +21,12 @@ router.post("/", async (req, res) => {
 
   let users = await UserSchema.findOne({ userEmail: req.body.useremail });
   if (!users)
-    return res
-      .status(400)
-      .send({
-        status: "Request Failed",
-        description: "Bad request",
-        data: null,
-        error: { message: "Invalid email or password" },
-      });
+    return res.status(400).send({
+      status: "Request Failed",
+      description: "Bad request",
+      data: null,
+      error: { message: "Invalid email or password" },
+    });
 
   const isPasswordMatch = await bcrypt.compare(
     req.body.password,
@@ -38,22 +36,23 @@ router.post("/", async (req, res) => {
   console.log(isPasswordMatch, req.body.password);
 
   if (!isPasswordMatch)
-    return res
-      .status(400)
-      .send({
-        status: "Request Failed",
-        description: "Bad request",
-        data: null,
-        error: { message: "Invalid email or password" },
-      });
+    return res.status(400).send({
+      status: "Request Failed",
+      description: "Bad request",
+      data: null,
+      error: { message: "Invalid email or password" },
+    });
 
-  const token = jwt.sign({_id: users._id,isAdmin: users.isAdmin},process.env.PRIVATE_KEY);
+  const token = jwt.sign(
+    { _id: users._id, isAdmin: users.isAdmin },
+    process.env.PRIVATE_KEY
+  );
 
   return res.status(200).send({
     status: "request successful",
     description: "login successful",
     data: {
-        token: token
+      token: token,
     },
     error: null,
   });
