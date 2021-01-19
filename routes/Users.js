@@ -33,7 +33,7 @@ router.get("/me", middleWare, async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const users = await UserSchema.find();
+    const users = await UserSchema.find().select('-userPassword');
     res.status(200).send(users);
   } catch (error) {
     res.status(404).send(error);
@@ -131,13 +131,11 @@ router.put("/", middleWare, async (req, res) => {
 
 router.delete("/", middleWare, async (req, res) => {
   if (!req.user.isAdmin)
-    return res
-      .status(403)
-      .send({
-        status: "Request Failed",
-        description: "Forbidden",
-        error: { message: "You are not allowed to execute this request" },
-      });
+    return res.status(403).send({
+      status: "Request Failed",
+      description: "Forbidden",
+      error: { message: "You are not allowed to execute this request" },
+    });
 
   try {
     const deleted = await UserSchema.deleteOne({ _id: req.body.userId });
