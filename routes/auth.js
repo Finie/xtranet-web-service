@@ -7,6 +7,8 @@ const UserSchema = require("../models/UserModel");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
+
+  console.log(req.body)
   const result = validateUser(req.body);
 
   if (result.error)
@@ -51,7 +53,11 @@ router.post("/", async (req, res) => {
     description: "login successful",
     data: {
       token: token,
-      isAdmin: users.isAdmin
+      isAdmin: users.isAdmin,
+      username:users.userName,
+      phone: users.userPhone,
+      email:users.userEmail,
+      profile: users.profile
     },
     error: null,
   });

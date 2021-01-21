@@ -1,5 +1,4 @@
 const express = require("express");
-const jsonperser = express.json()
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
@@ -64,8 +63,6 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", upload.single("file_name"), async (req, res) => {
-
-  console.log(req.file);
   const result = validateUser(req.body);
 
   if (result.error)
@@ -128,8 +125,7 @@ router.post("/", upload.single("file_name"), async (req, res) => {
 
 router.put("/",upload.single("file_name"), middleWare, async (req, res) => {
   try {
-    console.error(req.body)
-    console.log("file passed: ",req.file)
+   
     const postUpdate = await UserSchema.updateOne(
       { _id: req.body.userId ? req.body.userId : req.user._id },
       {
@@ -143,7 +139,6 @@ router.put("/",upload.single("file_name"), middleWare, async (req, res) => {
     );
 
     res.status(200).send({
-
       status: "Request Successful",
       description: "User updated",
       data: postUpdate,

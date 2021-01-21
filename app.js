@@ -3,9 +3,11 @@ const userRoute = require("./routes/Users");
 const auth = require("./routes/auth");
 const server = require("./server/server");
 const app = express();
+const morgan = require('morgan')
 const cors = require('cors')
 
 app.use(express.json());
+app.use(morgan('tiny'))
 app.use('/uploads',express.static('uploads'))
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
