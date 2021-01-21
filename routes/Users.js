@@ -1,7 +1,30 @@
 const express = require("express");
+const jsonperser = express.json()
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
+const multer = require("multer");
+const fileFilter = (req, file, cb) => {
+  if (
+    file.minetype === "image/jpeg" ||
+    file.minetype === "image/jpg" ||
+    file.minetype === "image/png"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + file.originalname);
+  },
+  fileFilter: fileFilter,
+});
+const upload = multer({ storage: storage });
 const UserSchema = require("../models/UserModel");
 const middleWare = require("../middleware/auth");
 
@@ -33,14 +56,16 @@ router.get("/me", middleWare, async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const users = await UserSchema.find().select('-userPassword');
+    const users = await UserSchema.find().select("-userPassword");
     res.status(200).send(users);
   } catch (error) {
     res.status(404).send(error);
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", upload.single("file_name"), async (req, res) => {
+
+  console.log(req.file);
   const result = validateUser(req.body);
 
   if (result.error)
@@ -72,6 +97,7 @@ router.post("/", async (req, res) => {
     userEmail: req.body.useremail,
     userPhone: req.body.phone,
     userPassword: hasedPassword,
+    profile: req.file.path
   });
 
   try {
@@ -99,37 +125,43 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/", middleWare, async (req, res) => {
+
+router.put("/",upload.single("file_name"), middleWare, async (req, res) => {
   try {
-    console.log(req.user._id);
+    console.error(req.body)
+    console.log("file passed: ",req.file)
     const postUpdate = await UserSchema.updateOne(
-      { _id: req.user._id },
+      { _id: req.body.userId ? req.body.userId : req.user._id },
       {
         $set: {
           userName: req.body.username,
           userEmail: req.body.useremail,
           userPhone: req.body.phone,
+          profile: req.file.path
         },
       }
     );
 
     res.status(200).send({
+
       status: "Request Successful",
       description: "User updated",
       data: postUpdate,
       error: null,
     });
-  } catch (error) {
-    res.status(200).send({
+
+
+  } catch (err) {
+    res.status(502).send({
       status: "Request Failed",
       description: "User updated was not successful",
       data: null,
-      error: error,
+      error: err,
     });
   }
 });
+router.delete("/:id", middleWare, async (req, res) => {
 
-router.delete("/", middleWare, async (req, res) => {
   if (!req.user.isAdmin)
     return res.status(403).send({
       status: "Request Failed",
@@ -137,14 +169,27 @@ router.delete("/", middleWare, async (req, res) => {
       error: { message: "You are not allowed to execute this request" },
     });
 
+
   try {
-    const deleted = await UserSchema.deleteOne({ _id: req.body.userId });
+
+    const deleted = await UserSchema.deleteOne({ _id: req.params.id });
+
+    if(deleted.deletedCount === 0)return   res.status(400).send({
+      status: "Request not Successful",
+      description: "No user was deleted",
+      data: deleted,
+      error: null,
+    });
+
+
+    
     res.status(200).send({
       status: "Request Successful",
       description: "User was successfully deleted",
       data: deleted,
       error: null,
     });
+
   } catch (error) {
     res.status(200).send({
       status: "Request Failed",
@@ -161,6 +206,7 @@ function validateUser(user) {
     useremail: Joi.string().email(),
     phone: Joi.string().required(),
     password: Joi.string().min(4).required(),
+    file_name: Joi.any()
   });
 
   return schema.validate(user);

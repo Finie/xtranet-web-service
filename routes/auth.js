@@ -33,8 +33,6 @@ router.post("/", async (req, res) => {
     users.userPassword
   );
 
-  console.log(isPasswordMatch, req.body.password);
-
   if (!isPasswordMatch)
     return res.status(400).send({
       status: "Request Failed",
@@ -53,6 +51,7 @@ router.post("/", async (req, res) => {
     description: "login successful",
     data: {
       token: token,
+      isAdmin: users.isAdmin
     },
     error: null,
   });

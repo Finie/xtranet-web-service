@@ -25,6 +25,10 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  profile:{
+    type: String,
+    required: true,
+  }
 });
 
 module.exports = mongoose.model("koodiUsers", UserSchema);
