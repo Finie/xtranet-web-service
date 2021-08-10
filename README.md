@@ -9,5 +9,6 @@ git pull main,
 npm install
 
 #After installation finishes run
+
 nodemon start
 
