@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
+
 const multer = require("multer");
 const fileFilter = (req, file, cb) => {
   if (
@@ -24,6 +25,7 @@ const storage = multer.diskStorage({
   fileFilter: fileFilter,
 });
 const upload = multer({ storage: storage });
+
 const UserSchema = require("../models/UserModel");
 const middleWare = require("../middleware/auth");
 
@@ -92,9 +94,7 @@ router.post("/", upload.single("file_name"), async (req, res) => {
     isAdmin: false,
     userName: req.body.username,
     userEmail: req.body.useremail,
-    userPhone: req.body.phone,
     userPassword: hasedPassword,
-    profile: req.file.path
   });
 
   try {
@@ -122,10 +122,8 @@ router.post("/", upload.single("file_name"), async (req, res) => {
   }
 });
 
-
-router.put("/",upload.single("file_name"), middleWare, async (req, res) => {
+router.put("/", upload.single("file_name"), middleWare, async (req, res) => {
   try {
-   
     const postUpdate = await UserSchema.updateOne(
       { _id: req.body.userId ? req.body.userId : req.user._id },
       {
@@ -133,7 +131,7 @@ router.put("/",upload.single("file_name"), middleWare, async (req, res) => {
           userName: req.body.username,
           userEmail: req.body.useremail,
           userPhone: req.body.phone,
-          profile: req.file.path
+          profile: req.file.path,
         },
       }
     );
@@ -144,8 +142,6 @@ router.put("/",upload.single("file_name"), middleWare, async (req, res) => {
       data: postUpdate,
       error: null,
     });
-
-
   } catch (err) {
     res.status(502).send({
       status: "Request Failed",
@@ -155,8 +151,8 @@ router.put("/",upload.single("file_name"), middleWare, async (req, res) => {
     });
   }
 });
-router.delete("/:id", middleWare, async (req, res) => {
 
+router.delete("/:id", middleWare, async (req, res) => {
   if (!req.user.isAdmin)
     return res.status(403).send({
       status: "Request Failed",
@@ -164,27 +160,23 @@ router.delete("/:id", middleWare, async (req, res) => {
       error: { message: "You are not allowed to execute this request" },
     });
 
-
   try {
-
     const deleted = await UserSchema.deleteOne({ _id: req.params.id });
 
-    if(deleted.deletedCount === 0)return   res.status(400).send({
-      status: "Request not Successful",
-      description: "No user was deleted",
-      data: deleted,
-      error: null,
-    });
+    if (deleted.deletedCount === 0)
+      return res.status(400).send({
+        status: "Request not Successful",
+        description: "No user was deleted",
+        data: deleted,
+        error: null,
+      });
 
-
-    
     res.status(200).send({
       status: "Request Successful",
       description: "User was successfully deleted",
       data: deleted,
       error: null,
     });
-
   } catch (error) {
     res.status(200).send({
       status: "Request Failed",
@@ -199,9 +191,7 @@ function validateUser(user) {
   const schema = Joi.object({
     username: Joi.string().required(),
     useremail: Joi.string().email(),
-    phone: Joi.string().required(),
     password: Joi.string().min(4).required(),
-    file_name: Joi.any()
   });
 
   return schema.validate(user);

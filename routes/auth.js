@@ -6,6 +6,7 @@ const UserSchema = require("../models/UserModel");
 
 const router = express.Router();
 
+
 router.post("/", async (req, res) => {
 
   console.log(req.body)
@@ -21,7 +22,13 @@ router.post("/", async (req, res) => {
       },
     });
 
+
+
+
   let users = await UserSchema.findOne({ userEmail: req.body.useremail });
+
+
+  
   if (!users)
     return res.status(400).send({
       status: "Request Failed",
@@ -61,7 +68,10 @@ router.post("/", async (req, res) => {
     },
     error: null,
   });
+
+  
 });
+
 
 function validateUser(user) {
   const schema = Joi.object({

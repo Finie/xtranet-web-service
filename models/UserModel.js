@@ -13,10 +13,6 @@ const UserSchema = mongoose.Schema({
     required: true,
     unique: true,
   },
-  userPhone: {
-    type: String,
-    required: true,
-  },
   isAdmin: {
     type: Boolean,
     required: true,
@@ -25,10 +21,6 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  profile:{
-    type: String,
-    required: true,
-  }
 });
 
-module.exports = mongoose.model("koodiUsers", UserSchema);
+module.exports = mongoose.model("xtranetUser", UserSchema);
