@@ -6,7 +6,7 @@ const UserSchema = require("../models/UserModel");
 
 const router = express.Router();
 
-
+// some updtate
 router.post("/", async (req, res) => {
 
   console.log(req.body)
